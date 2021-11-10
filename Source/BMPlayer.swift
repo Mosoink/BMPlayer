@@ -17,6 +17,8 @@ public protocol BMPlayerDelegate : class {
     func bmPlayer(player: BMPlayer, playTimeDidChange currentTime : TimeInterval, totalTime: TimeInterval)
     func bmPlayer(player: BMPlayer, playerIsPlaying playing: Bool)
     func bmPlayer(player: BMPlayer, playerOrientChanged isFullscreen: Bool)
+    func bmPlayer(player: BMPlayer, didSeek currentTime : TimeInterval, totalTime: TimeInterval)
+    func bmPlayer(player: BMPlayer, controlViewWillAnimation isShow: Bool)
 }
 
 /**
@@ -75,7 +77,7 @@ open class BMPlayer: UIView {
     
     fileprivate var currentDefinition = 0
     
-    fileprivate var controlView: BMPlayerControlView!
+    public private(set) var controlView: BMPlayerControlView!
     
     fileprivate var customControlView: BMPlayerControlView?
     
@@ -89,7 +91,7 @@ open class BMPlayer: UIView {
     fileprivate var panDirection = BMPanDirection.horizontal
     
     /// 音量滑竿
-    fileprivate var volumeViewSlider: UISlider!
+    public private(set) var volumeViewSlider: UISlider!
     
     fileprivate let BMPlayerAnimationTimeInterval: Double             = 4.0
     fileprivate let BMPlayerControlBarAutoFadeOutTimeInterval: Double = 0.5
@@ -98,7 +100,7 @@ open class BMPlayer: UIView {
     fileprivate var sumTime         : TimeInterval = 0
     fileprivate var totalDuration   : TimeInterval = 0
     fileprivate var currentPosition : TimeInterval = 0
-    fileprivate var shouldSeekTo    : TimeInterval = 0
+    open var shouldSeekTo    : TimeInterval = 0
     
     fileprivate var isURLSet        = false
     fileprivate var isSliderSliding = false
@@ -441,14 +443,14 @@ open class BMPlayer: UIView {
 }
 
 extension BMPlayer: BMPlayerLayerViewDelegate {
-    public func bmPlayer(player: BMPlayerLayerView, playerIsPlaying playing: Bool) {
+    public func bmPlayerView(player: BMPlayerLayerView, playerIsPlaying playing: Bool) {
         controlView.playStateDidChange(isPlaying: playing)
         delegate?.bmPlayer(player: self, playerIsPlaying: playing)
         playStateDidChange?(player.isPlaying)
         isPlayingStateChanged?(player.isPlaying)
     }
     
-    public func bmPlayer(player: BMPlayerLayerView, loadedTimeDidChange loadedDuration: TimeInterval, totalDuration: TimeInterval) {
+    public func bmPlayerView(player: BMPlayerLayerView, loadedTimeDidChange loadedDuration: TimeInterval, totalDuration: TimeInterval) {
         BMPlayerManager.shared.log("loadedTimeDidChange - \(loadedDuration) - \(totalDuration)")
         controlView.loadedTimeDidChange(loadedDuration: loadedDuration, totalDuration: totalDuration)
         delegate?.bmPlayer(player: self, loadedTimeDidChange: loadedDuration, totalDuration: totalDuration)
@@ -456,7 +458,7 @@ extension BMPlayer: BMPlayerLayerViewDelegate {
         self.totalDuration = totalDuration
     }
     
-    public func bmPlayer(player: BMPlayerLayerView, playerStateDidChange state: BMPlayerState) {
+    public func bmPlayerView(player: BMPlayerLayerView, playerStateDidChange state: BMPlayerState) {
         BMPlayerManager.shared.log("playerStateDidChange - \(state)")
         
         controlView.playerStateDidChange(state: state)
@@ -491,7 +493,7 @@ extension BMPlayer: BMPlayerLayerViewDelegate {
         playStateChanged?(state)
     }
     
-    public func bmPlayer(player: BMPlayerLayerView, playTimeDidChange currentTime: TimeInterval, totalTime: TimeInterval) {
+    public func bmPlayerView(player: BMPlayerLayerView, playTimeDidChange currentTime: TimeInterval, totalTime: TimeInterval) {
         BMPlayerManager.shared.log("playTimeDidChange - \(currentTime) - \(totalTime)")
         delegate?.bmPlayer(player: self, playTimeDidChange: currentTime, totalTime: totalTime)
         self.currentPosition = currentTime
@@ -502,6 +504,10 @@ extension BMPlayer: BMPlayerLayerViewDelegate {
         controlView.playTimeDidChange(currentTime: currentTime, totalTime: totalTime)
         controlView.totalDuration = totalDuration
         playTimeDidChange?(currentTime, totalTime)
+    }
+    
+    public func bmPlayerView(player: BMPlayerLayerView, didSeek currentTime: TimeInterval, totalTime: TimeInterval) {
+        delegate?.bmPlayer(player: self, didSeek: currentTime, totalTime: totalTime)
     }
 }
 
@@ -588,5 +594,9 @@ extension BMPlayer: BMPlayerControlViewDelegate {
     
     open func controlView(controlView: BMPlayerControlView, didChangeVideoPlaybackRate rate: Float) {
         self.playerLayer?.player?.rate = rate
+    }
+    
+    public func controlView(controlView: BMPlayerControlView, controlViewWillAnimation isShow: Bool) {
+        delegate?.bmPlayer(player: self, controlViewWillAnimation: isShow)
     }
 }

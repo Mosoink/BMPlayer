@@ -18,7 +18,7 @@ extension BMPlayerControlView {
     }
 }
 
-extension BMPlayer {
+public extension BMPlayer {
     static func formatSecondsToString(_ seconds: TimeInterval) -> String {
         if seconds.isNaN {
             return "00:00"

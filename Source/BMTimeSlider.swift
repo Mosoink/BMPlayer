@@ -11,7 +11,7 @@ import UIKit
 public class BMTimeSlider: UISlider {
     override open func trackRect(forBounds bounds: CGRect) -> CGRect {
         let trackHeight: CGFloat = 2
-        let position = CGPoint(x: 0, y: 14)
+        let position = CGPoint(x: 0, y: (bounds.size.height - trackHeight) / 2)
         let customBounds = CGRect(origin: position, size: CGSize(width: bounds.size.width, height: trackHeight))
         super.trackRect(forBounds: customBounds)
         return customBounds

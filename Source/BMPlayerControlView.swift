@@ -43,6 +43,14 @@ import NVActivityIndicatorView
      - parameter rate:        playback rate
      */
     @objc optional func controlView(controlView: BMPlayerControlView, didChangeVideoPlaybackRate rate: Float)
+    
+    /**
+     call when controlView will show or hide
+     
+     - parameter controlView: control view
+     - parameter isShow:      is show
+     */
+    @objc optional func controlView(controlView: BMPlayerControlView, controlViewWillAnimation isShow: Bool)
 }
 
 open class BMPlayerControlView: UIView {
@@ -125,7 +133,7 @@ open class BMPlayerControlView: UIView {
      - parameter totalTime:   total duration
      */
     open func playTimeDidChange(currentTime: TimeInterval, totalTime: TimeInterval) {
-        currentTimeLabel.text = BMPlayer.formatSecondsToString(currentTime)
+        updateCurrentTimeLabel(currentTime)
         totalTimeLabel.text   = BMPlayer.formatSecondsToString(totalTime)
         timeSlider.value      = Float(currentTime) / Float(totalTime)
         showSubtile(from: resource?.subtitle, at: currentTime)
@@ -187,12 +195,17 @@ open class BMPlayerControlView: UIView {
         let rotate = isAdd ? 0 : CGFloat(Double.pi)
         seekToViewImage.transform = CGAffineTransform(rotationAngle: rotate)
         
-        let targetTime = BMPlayer.formatSecondsToString(toSecound)
         timeSlider.value = Float(toSecound / totalDuration)
-        currentTimeLabel.text = targetTime
+        updateCurrentTimeLabel(toSecound)
     }
     
     // MARK: - UI update related function
+    
+    open func updateCurrentTimeLabel(_ toSecound: TimeInterval) {
+        let targetTime = BMPlayer.formatSecondsToString(toSecound)
+        currentTimeLabel.text = targetTime
+    }
+    
     /**
      Update UI details when player set with the resource
      
@@ -239,6 +252,7 @@ open class BMPlayerControlView: UIView {
      - parameter isShow: is to show the controlview
      */
     open func controlViewAnimation(isShow: Bool) {
+        delegate?.controlView?(controlView: self, controlViewWillAnimation: isShow)
         let alpha: CGFloat = isShow ? 1.0 : 0.0
         self.isMaskShowing = isShow
         
@@ -441,7 +455,7 @@ open class BMPlayerControlView: UIView {
               currentTime = Double(sender.value) * totalDuration
           }
       }
-      currentTimeLabel.text = BMPlayer.formatSecondsToString(currentTime)
+      updateCurrentTimeLabel(currentTime)
       delegate?.controlView(controlView: self, slider: sender, onSliderEvent: .valueChanged)
     }
     
@@ -452,7 +466,7 @@ open class BMPlayerControlView: UIView {
     
     
     // MARK: - private functions
-    fileprivate func showSubtile(from subtitle: BMSubtitles?, at time: TimeInterval) {
+    open func showSubtile(from subtitle: BMSubtitles?, at time: TimeInterval) {
         if let subtitle = subtitle, let group = subtitle.search(for: time) {
             subtitleBackView.isHidden = false
             subtitleLabel.attributedText = NSAttributedString(string: group.text,
