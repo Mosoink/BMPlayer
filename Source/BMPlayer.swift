@@ -326,6 +326,11 @@ open class BMPlayer: UIView {
             if (self.sumTime >= totalDuration) { self.sumTime = totalDuration }
             if (self.sumTime <= 0) { self.sumTime = 0 }
             
+            if let maxSeekToLocation = self.resource?.maxSeekToLocation {
+                if sumTime > maxSeekToLocation && totalDuration > 0 {
+                    sumTime = maxSeekToLocation
+                }
+            }
             controlView.showSeekToView(to: sumTime, total: totalDuration, isAdd: value > 0)
         }
     }

@@ -15,6 +15,8 @@ public class BMPlayerResource {
     public var subtitle: BMSubtitles?
     public let definitions: [BMPlayerResourceDefinition]
     
+    public var maxSeekToLocation: TimeInterval?
+    
     
     /**
      Player recource item with url, used to play single difinition video

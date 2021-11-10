@@ -433,7 +433,14 @@ open class BMPlayerControlView: UIView {
     @objc func progressSliderValueChanged(_ sender: UISlider)  {
       hidePlayToTheEndView()
       cancelAutoFadeOutAnimation()
-      let currentTime = Double(sender.value) * totalDuration
+      var currentTime = Double(sender.value) * totalDuration
+      
+      if let maxSeekToLocation = self.resource?.maxSeekToLocation {
+          if currentTime > maxSeekToLocation && totalDuration > 0 {
+              sender.value = min(Float(maxSeekToLocation / totalDuration), sender.value);
+              currentTime = Double(sender.value) * totalDuration
+          }
+      }
       currentTimeLabel.text = BMPlayer.formatSecondsToString(currentTime)
       delegate?.controlView(controlView: self, slider: sender, onSliderEvent: .valueChanged)
     }
