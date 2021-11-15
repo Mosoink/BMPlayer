@@ -97,7 +97,7 @@ open class BMPlayerLayerView: UIView {
     /// 计时器
     var timer: Timer?
     
-    fileprivate var urlAsset: AVURLAsset?
+    fileprivate var avAsset: AVAsset?
     
     fileprivate var lastPlayerItem: AVPlayerItem?
     /// playerLayer
@@ -138,8 +138,8 @@ open class BMPlayerLayerView: UIView {
         playAsset(asset: asset)
     }
     
-    open func playAsset(asset: AVURLAsset) {
-        urlAsset = asset
+    open func playAsset(asset: AVAsset) {
+        avAsset = asset
         onSetVideoAsset()
         play()
     }
@@ -277,7 +277,7 @@ open class BMPlayerLayerView: UIView {
     
     fileprivate func configPlayer(){
         player?.removeObserver(self, forKeyPath: "rate")
-        playerItem = AVPlayerItem(asset: urlAsset!)
+        playerItem = AVPlayerItem(asset: avAsset!)
         player     = AVPlayer(playerItem: playerItem!)
         player!.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions.new, context: nil)
         self.connectPlayerLayer()

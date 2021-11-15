@@ -73,7 +73,7 @@ open class BMPlayer: UIView {
     
     open var playerLayer: BMPlayerLayerView?
     
-    fileprivate var resource: BMPlayerResource!
+    open internal(set) var resource: BMPlayerResource!
     
     fileprivate var currentDefinition = 0
     
@@ -86,6 +86,10 @@ open class BMPlayer: UIView {
             return UIApplication.shared.statusBarOrientation.isLandscape
         }
     }
+    
+    @objc public internal(set) var forceInterfaceOrientation: UIInterfaceOrientation = .unknown
+    
+    
     
     /// 滑动方向
     fileprivate var panDirection = BMPanDirection.horizontal
@@ -134,13 +138,20 @@ open class BMPlayer: UIView {
         if BMPlayerConf.shouldAutoPlay {
             isURLSet = true
             let asset = resource.definitions[definitionIndex]
-            playerLayer?.playAsset(asset: asset.avURLAsset)
+            playerLayer?.playAsset(asset: asset.avAsset)
         } else {
             controlView.showCover(url: resource.cover)
             controlView.hideLoader()
         }
     }
     
+    open func resetPlayer() {
+        isURLSet = false
+        self.resource = nil
+        controlView.reset()
+        currentDefinition = 0
+        playerLayer?.resetPlayer()
+    }
     /**
      auto start playing, call at viewWillAppear, See more at pause
      */
@@ -158,7 +169,7 @@ open class BMPlayer: UIView {
         
         if !isURLSet {
             let asset = resource.definitions[currentDefinition]
-            playerLayer?.playAsset(asset: asset.avURLAsset)
+            playerLayer?.playAsset(asset: asset.avAsset)
             controlView.hideCoverImageView()
             isURLSet = true
         }
@@ -338,6 +349,7 @@ open class BMPlayer: UIView {
     }
     
     @objc open func onOrientationChanged() {
+        forceInterfaceOrientation = .unknown
         self.updateUI(isFullScreen)
         delegate?.bmPlayer(player: self, playerOrientChanged: isFullScreen)
         playOrientChanged?(isFullScreen)
@@ -346,13 +358,14 @@ open class BMPlayer: UIView {
     @objc fileprivate func fullScreenButtonPressed() {
         controlView.updateUI(!self.isFullScreen)
         if isFullScreen {
-            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
-            UIApplication.shared.setStatusBarHidden(false, with: .fade)
-            UIApplication.shared.statusBarOrientation = .portrait
+            forceInterfaceOrientation = .portrait
         } else {
-            UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation")
-            UIApplication.shared.setStatusBarHidden(false, with: .fade)
-            UIApplication.shared.statusBarOrientation = .landscapeRight
+            forceInterfaceOrientation = .landscapeRight
+        }
+        if let vc = self.bm_viewController {
+            UIViewController.attemptRotationToDeviceOrientation()
+            let _ = vc.prefersStatusBarHidden
+            vc.setNeedsStatusBarAppearanceUpdate()
         }
     }
     
@@ -517,7 +530,7 @@ extension BMPlayer: BMPlayerControlViewDelegate {
         shouldSeekTo = currentPosition
         playerLayer?.resetPlayer()
         currentDefinition = index
-        playerLayer?.playAsset(asset: resource.definitions[index].avURLAsset)
+        playerLayer?.playAsset(asset: resource.definitions[index].avAsset)
     }
     
     open func controlView(controlView: BMPlayerControlView,
@@ -598,5 +611,21 @@ extension BMPlayer: BMPlayerControlViewDelegate {
     
     public func controlView(controlView: BMPlayerControlView, controlViewWillAnimation isShow: Bool) {
         delegate?.bmPlayer(player: self, controlViewWillAnimation: isShow)
+    }
+}
+
+extension UIView {
+    var bm_viewController: UIViewController? {
+        get {
+            var next: UIResponder? = self.next
+            while next != nil {
+                guard let nextOK = next else { return nil }
+                if nextOK.isKind(of: UIViewController.self) {
+                    return nextOK as? UIViewController
+                }
+                next = nextOK.next
+            }
+            return nil
+        }
     }
 }

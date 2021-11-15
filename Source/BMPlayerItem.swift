@@ -55,20 +55,13 @@ public class BMPlayerResource {
 
 
 open class BMPlayerResourceDefinition {
-    public let url: URL
+    public let url: URL?
     public let definition: String
     
     /// An instance of NSDictionary that contains keys for specifying options for the initialization of the AVURLAsset. See AVURLAssetPreferPreciseDurationAndTimingKey and AVURLAssetReferenceRestrictionsKey above.
     public var options: [String : Any]?
     
-    open var avURLAsset: AVURLAsset {
-        get {
-            guard !url.isFileURL, url.pathExtension != "m3u8" else {
-                return AVURLAsset(url: url)
-            }
-            return BMPlayerManager.asset(for: self)
-        }
-    }
+    open var avAsset: AVAsset
     
     /**
      Video recource item with defination name and specifying options
@@ -89,5 +82,17 @@ open class BMPlayerResourceDefinition {
         self.url        = url
         self.definition = definition
         self.options    = options
+        if !url.isFileURL, url.pathExtension != "m3u8" {
+            self.avAsset = BMPlayerManager.asset(url: url, options: options)
+        } else {
+            self.avAsset = AVURLAsset(url: url)
+        }
+    }
+    
+    public init(asset: AVAsset, definition: String, options: [String : Any]? = nil) {
+        self.url        = nil
+        self.definition = definition
+        self.options    = options
+        self.avAsset    = asset
     }
 }

@@ -46,8 +46,8 @@ open class BMPlayerManager {
     
     open var enableChooseDefinition = true
     
-    internal static func asset(for resouce: BMPlayerResourceDefinition) -> AVURLAsset {
-        return AVURLAsset(url: resouce.url, options: resouce.options)
+    internal static func asset(url URL: URL, options: [String : Any]? = nil) -> AVURLAsset {
+        return AVURLAsset(url: URL, options: options)
     }
     
     /**

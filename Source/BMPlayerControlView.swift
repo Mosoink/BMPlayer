@@ -212,12 +212,27 @@ open class BMPlayerControlView: UIView {
      - parameter resource: video resouce
      - parameter index:    defualt definition's index
      */
-    open func prepareUI(for resource: BMPlayerResource, selectedIndex index: Int) {
+    open func prepareUI(for resource: BMPlayerResource?, selectedIndex index: Int) {
         self.resource = resource
         self.selectedIndex = index
-        titleLabel.text = resource.name
+        titleLabel.text = resource?.name
         prepareChooseDefinitionView()
         autoFadeOutControlViewWithAnimation()
+    }
+    
+    open func reset() {
+        self.resource = nil
+        self.selectedIndex = 0
+        titleLabel.text = nil
+        autoFadeOutControlViewWithAnimation()
+        maskImageView.image = nil
+        hideLoader()
+        hidePlayToTheEndView()
+        progressView.progress = 0
+        timeSlider.value = 0;
+        hideSeekToView()
+        replayButton.isHidden = true
+        playTimeDidChange(currentTime: 0, totalTime: 0)
     }
     
     open func playStateDidChange(isPlaying: Bool) {
@@ -255,8 +270,11 @@ open class BMPlayerControlView: UIView {
         delegate?.controlView?(controlView: self, controlViewWillAnimation: isShow)
         let alpha: CGFloat = isShow ? 1.0 : 0.0
         self.isMaskShowing = isShow
-        
-        UIApplication.shared.setStatusBarHidden(!isShow, with: .fade)
+        if let vc = self.bm_viewController {
+            UIViewController.attemptRotationToDeviceOrientation()
+            let _ = vc.prefersStatusBarHidden
+            vc.setNeedsStatusBarAppearanceUpdate()
+        }
         
         UIView.animate(withDuration: 0.3, animations: {[weak self] in
           guard let wSelf = self else { return }
