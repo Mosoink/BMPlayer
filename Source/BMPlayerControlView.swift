@@ -271,7 +271,6 @@ open class BMPlayerControlView: UIView {
         let alpha: CGFloat = isShow ? 1.0 : 0.0
         self.isMaskShowing = isShow
         if let vc = self.bm_viewController {
-            UIViewController.attemptRotationToDeviceOrientation()
             let _ = vc.prefersStatusBarHidden
             vc.setNeedsStatusBarAppearanceUpdate()
         }

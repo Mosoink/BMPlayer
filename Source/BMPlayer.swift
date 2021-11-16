@@ -67,6 +67,8 @@ open class BMPlayer: UIView {
 
     open var playStateChanged:((BMPlayerState) -> Void)?
     
+    @objc open var forceSetOrientation:((Bool) -> Void) = { _ in }
+    
     open var avPlayer: AVPlayer? {
         return playerLayer?.player
     }
@@ -86,10 +88,6 @@ open class BMPlayer: UIView {
             return UIApplication.shared.statusBarOrientation.isLandscape
         }
     }
-    
-    @objc public internal(set) var forceInterfaceOrientation: UIInterfaceOrientation = .unknown
-    
-    
     
     /// 滑动方向
     fileprivate var panDirection = BMPanDirection.horizontal
@@ -349,21 +347,16 @@ open class BMPlayer: UIView {
     }
     
     @objc open func onOrientationChanged() {
-        forceInterfaceOrientation = .unknown
         self.updateUI(isFullScreen)
         delegate?.bmPlayer(player: self, playerOrientChanged: isFullScreen)
         playOrientChanged?(isFullScreen)
     }
     
     @objc fileprivate func fullScreenButtonPressed() {
-        controlView.updateUI(!self.isFullScreen)
-        if isFullScreen {
-            forceInterfaceOrientation = .portrait
-        } else {
-            forceInterfaceOrientation = .landscapeRight
-        }
+        let isFullScreen = !self.isFullScreen
+        controlView.updateUI(isFullScreen)
+        forceSetOrientation(isFullScreen)
         if let vc = self.bm_viewController {
-            UIViewController.attemptRotationToDeviceOrientation()
             let _ = vc.prefersStatusBarHidden
             vc.setNeedsStatusBarAppearanceUpdate()
         }
