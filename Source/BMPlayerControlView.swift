@@ -172,7 +172,9 @@ open class BMPlayerControlView: UIView {
             
         case .playedToTheEnd:
             playButton.isSelected = false
-            showPlayToTheEndView()
+            if let player = player, !player.isSliderSliding {
+                showPlayToTheEndView()
+            }
             controlViewAnimation(isShow: true)
             
         default:

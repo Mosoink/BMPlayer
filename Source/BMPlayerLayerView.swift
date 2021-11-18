@@ -321,23 +321,19 @@ open class BMPlayerLayerView: UIView {
                     self.state = .buffering
                 }
             }
-            if player.error != nil {
-                self.state = .error
-                return
-            }
-            if let currentItem = player.currentItem {
-                if player.currentTime() >= currentItem.duration {
-                    moviePlayDidEnd()
+            if player.rate == 0.0 {
+                if player.error != nil {
+                    self.state = .error
                     return
                 }
-                if player.rate == 0.0 {
-                    
-                } else {
-                    setupTimer()
-                    isPlaying = true
-                }
-                if currentItem.isPlaybackLikelyToKeepUp || currentItem.isPlaybackBufferFull {
-                    
+                if let currentItem = player.currentItem {
+                    if player.currentTime() >= currentItem.duration {
+                        moviePlayDidEnd()
+                        return
+                    }
+                    if currentItem.isPlaybackLikelyToKeepUp || currentItem.isPlaybackBufferFull {
+                        
+                    }
                 }
             }
         }
@@ -411,6 +407,12 @@ open class BMPlayerLayerView: UIView {
         
         if keyPath == "rate" {
             updateStatus()
+            if let player = player, let _ = playerItem, player.rate > 0.0 {
+                if !isPlaying {
+                    setupTimer()
+                    isPlaying = true
+                }
+            }
         }
     }
     

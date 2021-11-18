@@ -105,7 +105,7 @@ open class BMPlayer: UIView {
     open var shouldSeekTo    : TimeInterval = 0
     
     fileprivate var isURLSet        = false
-    fileprivate var isSliderSliding = false
+    var isSliderSliding = false
     fileprivate var isPauseByUser   = false
     fileprivate var isVolume        = false
     fileprivate var isMaskShowing   = false
@@ -497,7 +497,9 @@ extension BMPlayer: BMPlayerLayerViewDelegate {
         default:
             break
         }
-        panGesture.isEnabled = state != .playedToTheEnd
+        if controlView.seekToView.isHidden {
+            panGesture.isEnabled = state != .playedToTheEnd
+        }
         delegate?.bmPlayer(player: self, playerStateDidChange: state)
         playStateChanged?(state)
     }
