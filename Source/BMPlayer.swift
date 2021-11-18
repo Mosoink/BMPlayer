@@ -118,6 +118,8 @@ open class BMPlayer: UIView {
     //Cache is playing result to improve callback performance
     fileprivate var isPlayingCache: Bool? = nil
     
+    open var rate: Float? = nil
+    
     // MARK: - Public functions
     
     /**
@@ -144,6 +146,7 @@ open class BMPlayer: UIView {
     }
     
     open func resetPlayer() {
+        rate = nil
         isURLSet = false
         self.resource = nil
         controlView.reset()
@@ -173,7 +176,7 @@ open class BMPlayer: UIView {
         }
         
         panGesture.isEnabled = true
-        playerLayer?.play()
+        playerLayer?.play(self.rate)
         isPauseByUser = false
     }
     
@@ -544,7 +547,7 @@ extension BMPlayer: BMPlayerControlViewDelegate {
                 } else {
                     if isPlayToTheEnd {
                         seek(0, completion: {[weak self] in
-                          self?.play()
+                            self?.play()
                         })
                         controlView.hidePlayToTheEndView()
                         isPlayToTheEnd = false
@@ -599,7 +602,10 @@ extension BMPlayer: BMPlayerControlViewDelegate {
     }
     
     open func controlView(controlView: BMPlayerControlView, didChangeVideoPlaybackRate rate: Float) {
-        self.playerLayer?.player?.rate = rate
+        self.rate = rate
+        if isPlaying {
+            self.playerLayer?.player?.rate = rate
+        }
     }
     
     public func controlView(controlView: BMPlayerControlView, controlViewWillAnimation isShow: Bool) {

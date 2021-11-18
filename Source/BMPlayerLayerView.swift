@@ -145,9 +145,13 @@ open class BMPlayerLayerView: UIView {
     }
     
     
-    open func play() {
+    open func play(_ rate: Float? = nil) {
         if let player = player {
-            player.play()
+            if let rate = rate, rate > 0.0, rate != 1.0 {
+                player.rate = rate
+            } else {
+                player.play()
+            }
             setupTimer()
             isPlaying = true
         }
@@ -317,19 +321,23 @@ open class BMPlayerLayerView: UIView {
                     self.state = .buffering
                 }
             }
-            if player.rate == 0.0 {
-                if player.error != nil {
-                    self.state = .error
+            if player.error != nil {
+                self.state = .error
+                return
+            }
+            if let currentItem = player.currentItem {
+                if player.currentTime() >= currentItem.duration {
+                    moviePlayDidEnd()
                     return
                 }
-                if let currentItem = player.currentItem {
-                    if player.currentTime() >= currentItem.duration {
-                        moviePlayDidEnd()
-                        return
-                    }
-                    if currentItem.isPlaybackLikelyToKeepUp || currentItem.isPlaybackBufferFull {
-                        
-                    }
+                if player.rate == 0.0 {
+                    
+                } else {
+                    setupTimer()
+                    isPlaying = true
+                }
+                if currentItem.isPlaybackLikelyToKeepUp || currentItem.isPlaybackBufferFull {
+                    
                 }
             }
         }
