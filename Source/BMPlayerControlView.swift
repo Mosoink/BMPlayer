@@ -425,9 +425,9 @@ open class BMPlayerControlView: UIView {
       if let type = ButtonType(rawValue: button.tag) {
         switch type {
         case .play, .replay:
-          if playerLastState == .playedToTheEnd {
+//          if playerLastState == .playedToTheEnd {
             hidePlayToTheEndView()
-          }
+//          }
         default:
           break
         }
