@@ -383,7 +383,11 @@ open class BMPlayerLayerView: UIView {
                     if let timeInterVarl    = self.availableDuration() {
                         let duration        = item.duration
                         let totalDuration   = CMTimeGetSeconds(duration)
-                        delegate?.bmPlayerView(player: self, loadedTimeDidChange: timeInterVarl, totalDuration: totalDuration)
+                        var time = timeInterVarl;
+                        if totalDuration - timeInterVarl < 1 {
+                            time = totalDuration;
+                        }
+                        delegate?.bmPlayerView(player: self, loadedTimeDidChange: time, totalDuration: totalDuration)
                     }
                     
                 case "playbackBufferEmpty":
