@@ -375,7 +375,7 @@ open class BMPlayer: UIView {
     
     @objc fileprivate func fullScreenButtonPressed() {
         controlView.updateUI(!self.isFullScreen)
-        setOrientation(ori: isFullScreen ? .landscapeRight : .portrait)
+        setOrientation(ori: isFullScreen ? .portrait : .landscapeRight)
     }
     
     // MARK: - 生命周期

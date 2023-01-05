@@ -17,7 +17,7 @@ s.social_media_url = 'http://weibo.com/536445669'
 s.ios.deployment_target = '10.0'
 s.platform     = :ios, '10.0'
 s.pod_target_xcconfig = { 'SWIFT_VERSION' => '5.0' }
-s.default_subspec = 'Full'
+s.default_subspec = 'MKPlayer'
 
 s.subspec 'Core' do |core|
     core.frameworks   = 'UIKit', 'AVFoundation'
@@ -43,6 +43,15 @@ s.subspec 'CacheSupport' do |cache|
     cache.dependency 'SnapKit', '~> 5.0.0'
     cache.dependency 'NVActivityIndicatorView', '~> 4.7.0'
     cache.dependency 'VIMediaCache'
+end
+
+s.subspec 'MKPlayer' do |mk|
+    mk.source_files = 'Source/MKPlayer/*.swift'
+    mk.resources    = "Source/MKPlayer/*.xcassets"
+    mk.frameworks   = 'UIKit', 'AVFoundation'
+
+    mk.dependency 'BMPlayer/Core'
+    mk.dependency 'BMPlayer/Full'
 end
 
 end
