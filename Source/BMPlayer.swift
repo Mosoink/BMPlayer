@@ -356,9 +356,18 @@ open class BMPlayer: UIView {
     @objc open func setOrientation(ori: UIInterfaceOrientation) {
         if #available(iOS 16.0, *) {
             let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-            windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: ori))
+            var mask = UIInterfaceOrientationMask.portrait
+            switch ori {
+            case .landscapeLeft:
+                mask = .landscapeLeft
+            case .landscapeRight:
+                mask = .landscapeRight
+            default:
+                break
+            }
+            windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
         } else {
-            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+            UIDevice.current.setValue(ori.rawValue, forKey: "orientation")
         }
         UIApplication.shared.setStatusBarHidden(ori != .portrait, with: .fade)
         UIApplication.shared.statusBarOrientation = ori
