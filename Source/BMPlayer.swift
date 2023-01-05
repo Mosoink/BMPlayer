@@ -67,8 +67,6 @@ open class BMPlayer: UIView {
 
     open var playStateChanged:((BMPlayerState) -> Void)?
     
-    @objc open var forceSetOrientation:((UIInterfaceOrientation, Bool) -> Void) = { (_, _) in }
-    
     open var avPlayer: AVPlayer? {
         return playerLayer?.player
     }
@@ -355,14 +353,20 @@ open class BMPlayer: UIView {
         playOrientChanged?(isFullScreen)
     }
     
-    @objc fileprivate func fullScreenButtonPressed() {
-        let isFullScreen = !self.isFullScreen
-        controlView.updateUI(isFullScreen)
-        forceSetOrientation(isFullScreen ? .landscapeRight : .portrait, true)
-        if let vc = self.bm_viewController {
-            let _ = vc.prefersStatusBarHidden
-            vc.setNeedsStatusBarAppearanceUpdate()
+    @objc open func setOrientation(ori: UIInterfaceOrientation) {
+        if #available(iOS 16.0, *) {
+            let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+            windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: ori))
+        } else {
+            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
         }
+        UIApplication.shared.setStatusBarHidden(ori != .portrait, with: .fade)
+        UIApplication.shared.statusBarOrientation = ori
+    }
+    
+    @objc fileprivate func fullScreenButtonPressed() {
+        controlView.updateUI(!self.isFullScreen)
+        setOrientation(ori: isFullScreen ? .landscapeRight : .portrait)
     }
     
     // MARK: - 生命周期
