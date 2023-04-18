@@ -214,6 +214,11 @@ open class MMPlayer : BMPlayer {
         setVideo(resource: BMPlayerResource(url: url as URL))
     }
     
+    open func setVideoURL(_ url: NSURL, cover: NSURL) {
+        let resource = BMPlayerResource(url: url as URL, cover: cover == nil ? nil : (cover as URL))
+        setVideo(resource: resource)
+    }
+    
     open func setVideoURL(_ url: NSURL, maxSeekToLocation: Double) {
         let resource = BMPlayerResource(url: url as URL)
         resource.maxSeekToLocation = maxSeekToLocation
